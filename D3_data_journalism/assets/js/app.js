@@ -1,4 +1,4 @@
-// @TODO: YOUR CODE HERE!
+// @TODO: YOUR CODE HERE
 
 function makeResponsive() {
 
