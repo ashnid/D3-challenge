@@ -1,5 +1,3 @@
-// @TODO: YOUR CODE HERE
-
 function makeResponsive() {
 
     var svgWidth = 960;
@@ -38,9 +36,7 @@ function makeResponsive() {
                 data.abbr = data.abbr;
                 data.income = +data.income;
             });
-            // console.log(riskData);
 
-            //Create scales for X and Y
             var xLinearScale = d3.scaleLinear()
                 .domain([8.5, d3.max(riskData, d => d.poverty)])
                 .range([0, width]);
@@ -107,8 +103,6 @@ function makeResponsive() {
                     return (`${d.state}<br>poverty: ${d.poverty}<br>healthcare: ${d.healthcare}`);
                 });
             chartGroup.call(toolTip)
-
-            //Make labels for the healthrisk graph
 
             chartGroup.append("text")
                 .attr("transform", "rotate(-90)")
