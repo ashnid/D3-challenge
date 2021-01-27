@@ -2,19 +2,18 @@ function makeResponsive() {
 
     var svgWidth = 960;
     var svgHeight = 500;
-
     var margin = {
         top: 20,
         right: 40,
         bottom: 80,
         left: 100
     };
-
     var width = svgWidth - margin.left - margin.right;
     var height = svgHeight - margin.top - margin.bottom;
 
-    // Create the SVG wrapper, then append the svg group with its size attributes
-    var svg = d3.select("#scatter")
+    // Create the SVG wrapper
+    var svg = d3
+        .select("#scatter")
         .append("svg")
         .attr("width", svgWidth)
         .attr("height", svgHeight);
@@ -22,12 +21,14 @@ function makeResponsive() {
     var chartGroup = svg.append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    //Import Data from data.csv file
+    d3.select("body").append("div").attr("class", "tooltip").style("opacity", 0);
+
+    //Import Data from data.csv 
     d3.csv("assets/data/data.csv")
         .then(function(riskData) {
             console.log(riskData);
 
-            //Get data from data.csv file and turn strings into integers if needed
+            //Parse Data/Cast as numbers
             riskData.forEach(function(data) {
                 data.age = +data.age;
                 data.smokes = +data.smokes;
@@ -36,17 +37,11 @@ function makeResponsive() {
                 data.abbr = data.abbr;
                 data.income = +data.income;
             });
+            //Create scale functions
+            var xLinearScale = d3.scaleLinear().domain([8.5, d3.max(riskData, d => d.poverty)]).range([0, width]);
+            var yLinearScale = d3.scaleLinear().domain([3.5, d3.max(riskData, d => d.healthcare)]).range([height, 0]);
 
-            var xLinearScale = d3.scaleLinear()
-                .domain([8.5, d3.max(riskData, d => d.poverty)])
-                .range([0, width]);
-
-            var yLinearScale = d3.scaleLinear()
-                .domain([3.5, d3.max(riskData, d => d.healthcare)])
-                .range([height, 0]);
-
-
-            //Create axis
+            //Create axis functions
             var xAxis = d3.axisBottom(xLinearScale);
             var yAxis = d3.axisLeft(yLinearScale);
 
@@ -58,16 +53,16 @@ function makeResponsive() {
             chartGroup.append("g")
                 .call(yAxis);
 
-            //Make Circles
+            //Create Circles
             var circlesGroup = chartGroup.selectAll("circle")
                 .data(riskData)
                 .enter()
                 .append("circle")
                 .attr("cx", d => xLinearScale(d.poverty))
                 .attr("cy", d => yLinearScale(d.healthcare))
-                .attr("r", 10)
-                .attr("fill", "lightblue")
-                .attr("opacity", ".6")
+                .attr("r", 12)
+                .attr("fill", "blue")
+                .attr("opacity", ".5")
                 .attr("stroke-width", "1")
                 .attr("stroke", "black")
                 .on("mouseover", function(data, index) {
@@ -92,16 +87,14 @@ function makeResponsive() {
                 .attr("text-anchor", "middle")
                 .attr("font-size", "12px")
                 .attr("fill", "black");
-
-
-            // console.log(riskData);
-
+            //Initialize tool tip
             var toolTip = d3.tip()
                 .attr("class", "d3-tip")
                 .offset([80, -20])
                 .html(function(d) {
                     return (`${d.state}<br>poverty: ${d.poverty}<br>healthcare: ${d.healthcare}`);
                 });
+            //Create tooltip in the chart
             chartGroup.call(toolTip)
 
             chartGroup.append("text")
